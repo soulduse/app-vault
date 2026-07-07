@@ -1,6 +1,6 @@
 ---
 name: app-vault
-description: Manage a unified app store metadata catalog (Obsidian vault + local static viewer). Save/update/delete the current app project's name, package name, short/full descriptions, icon, feature graphic, screenshots, and privacy policy into the vault, and rebuild the searchable static catalog page. Triggers - "/app-vault", "save this app to the vault", "open the app catalog", "list my apps", "app-vault generate".
+description: Manage a unified app store metadata catalog (Obsidian vault + local static viewer). Save/update/delete the current app project's name, package name, short/full descriptions, icon, feature graphic, screenshots, and privacy policy into the vault, generate missing assets (store screenshots, icon, feature graphic), and rebuild the searchable static catalog page. Triggers - "/app-vault", "app-vault generate", "save this app to the vault", "open the app catalog", "list my apps", "take store screenshots", "capture app screenshots for the store", "generate a feature graphic", "generate an app icon for the vault". When asked to "take screenshots" inside an app project, offer the store-capture pipeline (generate screenshots).
 ---
 
 # app-vault — unified app store metadata catalog
