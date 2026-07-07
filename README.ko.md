@@ -49,6 +49,44 @@ python3 scripts/build.py --vault examples/vault --lang ko --open
 python3 scripts/build.py --vault ~/my-vault/apps --lang ko   # 내 vault 빌드 (한국어 UI)
 ```
 
+## 옵시디언과 함께 쓰기
+
+이 vault는 **옵시디언 vault 안에 넣고 쓰도록 설계**되어 있습니다 — 그게 핵심입니다.
+앱 카탈로그가 평소 노트 옆에 살면서 옵시디언이 주는 것들을 공짜로 물려받습니다.
+
+```
+내옵시디언Vault/
+  notes/ …
+  apps/                ← app-vault가 사는 곳
+    aurora-notes/
+    tidal/
+    _site/index.html   ← 생성된 뷰어
+```
+
+```bash
+python3 scripts/build.py --vault ~/Documents/내옵시디언Vault/apps --lang ko
+```
+
+두 도구의 역할 분담:
+
+- **옵시디언 = 편집·연결.** 각 `app.md`는 일반 노트로 열립니다: frontmatter는
+  Properties 패널로 표시되고, 등록정보 섹션은 순수 마크다운, 이미지는 그 자리에서
+  렌더링됩니다. 다른 노트에서 `[[aurora-notes/app]]` 위키링크로 연결하고,
+  Dataview로 쿼리할 수 있습니다:
+
+  ```
+  TABLE packageName, status, updated
+  FROM "apps"
+  WHERE packageName
+  ```
+
+- **뷰어 = 조회·출시 작업.** 로케일 탭, 복사 버튼, 글자수 카운터, 자산 다운로드 —
+  마크다운 에디터가 못 하는 것들. 편집 후 리빌드하고 새로고침하면 됩니다.
+
+생성물 `_site/index.html`은 vault를 어지럽히지 않습니다: 옵시디언은 기본적으로
+`.html`을 무시하고, `_` 프리픽스 폴더는 빌더 스스로도 건너뜁니다. Obsidian
+Sync/iCloud/git — vault를 동기화하는 수단이 무엇이든 앱 카탈로그도 함께 동기화됩니다.
+
 ## Claude Code 스킬 (선택)
 
 뷰어·빌더는 단독으로 동작합니다. [Claude Code](https://claude.com/claude-code)를

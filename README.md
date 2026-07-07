@@ -97,6 +97,47 @@ python3 scripts/build.py --vault ~/my-vault/apps          # or set APP_VAULT_DIR
 python3 scripts/build.py --vault ~/my-vault/apps --lang ko  # Korean UI
 ```
 
+## Using with Obsidian
+
+The vault is designed to live **inside your Obsidian vault** — that's the whole
+point: your app catalog sits next to your notes and inherits everything Obsidian
+gives you for free.
+
+```
+YourObsidianVault/
+  notes/ …
+  apps/                ← app-vault lives here
+    aurora-notes/
+    tidal/
+    _site/index.html   ← generated viewer
+```
+
+```bash
+python3 scripts/build.py --vault ~/Documents/YourObsidianVault/apps
+```
+
+How the two sides divide the work:
+
+- **Obsidian = edit & connect.** Each `app.md` opens as a regular note:
+  frontmatter appears in the Properties panel, listing sections are plain
+  markdown, and images render in place. Link app entries from anywhere with
+  `[[aurora-notes/app]]` wikilinks, and query them with Dataview:
+
+  ```
+  TABLE packageName, status, updated
+  FROM "apps"
+  WHERE packageName
+  ```
+
+- **The viewer = browse & ship.** Locale tabs, copy buttons, character counters,
+  and asset downloads — things a markdown editor can't do. Rebuild after editing
+  and refresh the page.
+
+The generated `_site/index.html` doesn't clutter your vault: Obsidian ignores
+`.html` files by default, and the `_`-prefixed folder is skipped by the builder
+itself. Obsidian Sync/iCloud/git — whatever syncs your vault syncs your app
+catalog too.
+
 ## Claude Code skill (optional)
 
 The viewer and builder work standalone. If you use
