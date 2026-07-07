@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="__LANG__">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App Vault</title>
+<style>
+:root {
+  --bg: #141519;
+  --surface: #1c1e24;
+  --card: #1f222a;
+  --card-hover: #242832;
+  --line: #2b2f39;
+  --line-strong: #3a3f4c;
+  --ink: #ece9e2;
+  --ink-dim: #9a9da8;
+  --ink-faint: #6b6f7b;
+  --amber: #f0a828;
+  --amber-soft: rgba(240, 168, 40, .14);
+  --green: #4ade80;
+  --blue: #6aa9ff;
+  --gray: #8b8f99;
+  --mono: "SF Mono", Menlo, "JetBrains Mono", monospace;
+  --display: "Futura", "Avenir Next", "Apple SD Gothic Neo", sans-serif;
+  --body: "Avenir Next", "Apple SD Gothic Neo", "Pretendard", sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scrollbar-color: var(--line-strong) transparent; }
+body {
+  background:
+    radial-gradient(1200px 500px at 50% -180px, rgba(240,168,40,.07), transparent 60%),
+    linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px),
+    var(--bg);
+  background-size: auto, 44px 44px, 44px 44px, auto;
+  color: var(--ink);
+  font-family: var(--body);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── header ─────────────────────────────── */
+header {
+  max-width: 1180px; margin: 0 auto;
+  padding: 56px 32px 8px;
+}
+.brand { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.brand h1 {
+  font-family: var(--display);
+  font-size: clamp(34px, 5vw, 52px);
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.brand h1 .tick { color: var(--amber); }
+.brand .count {
+  font-family: var(--mono);
+  font-size: 13px; color: var(--ink-dim);
+  border: 1px solid var(--line-strong);
+  padding: 3px 10px; border-radius: 999px;
+  letter-spacing: .06em;
+}
+.tagline {
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 12px; letter-spacing: .18em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+.tagline::before { content: "// "; color: var(--amber); }
+
+/* ── toolbar ─────────────────────────────── */
+.toolbar {
+  max-width: 1180px; margin: 26px auto 0;
+  padding: 0 32px;
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+.search {
+  position: relative; flex: 1 1 320px; max-width: 520px;
+}
+.search input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 13px 44px 13px 42px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+.search input::placeholder { color: var(--ink-faint); }
+.search input:focus {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-soft);
+}
+.search .icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--ink-faint); pointer-events: none; font-size: 15px;
+}
+.search kbd {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-family: var(--mono); font-size: 11px;
+  color: var(--ink-faint);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px; padding: 2px 7px;
+}
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  font-family: var(--mono); font-size: 12px;
+  letter-spacing: .04em;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.chip:hover { border-color: var(--line-strong); color: var(--ink); }
+.chip.on {
+  color: #141519;
+  background: var(--amber);
+  border-color: var(--amber);
+  font-weight: 600;
+}
+.chip .n { opacity: .65; margin-left: 4px; }
+.chip.on .n { opacity: .8; }
+
+/* ── grid ───────────────────────────── */
+main { max-width: 1180px; margin: 0 auto; padding: 26px 32px 80px; }
+#grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  cursor: pointer;
+  display: flex; flex-direction: column; gap: 14px;
+  transition: transform .18s, border-color .18s, background .18s, box-shadow .18s;
+  animation: rise .45s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(240,168,40,.45);
+  background: var(--card-hover);
+  box-shadow: 0 12px 32px rgba(0,0,0,.35);
+}
+.card .top { display: flex; gap: 14px; align-items: center; min-width: 0; }
+.appicon {
+  width: 58px; height: 58px; border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  object-fit: cover; flex-shrink: 0;
+}
+.appicon.ph {
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 22px; font-weight: 700;
+  color: var(--amber);
+}
+.card .id { min-width: 0; }
+.card .name {
+  font-size: 17px; font-weight: 700; letter-spacing: -.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card .pkg {
+  font-family: var(--mono); font-size: 11.5px;
+  color: var(--ink-faint); margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card .desc {
+  font-size: 13.5px; line-height: 1.55; color: var(--ink-dim);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; min-height: 2.9em;
+}
+.card .foot {
+  display: flex; align-items: center; gap: 10px;
+  border-top: 1px dashed var(--line);
+  padding-top: 12px; margin-top: auto;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .05em;
+  padding: 3px 9px; border-radius: 6px;
+  border: 1px solid;
+}
+.badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge.released { color: var(--green); border-color: rgba(74,222,128,.35); background: rgba(74,222,128,.08); }
+.badge.dev { color: var(--amber); border-color: rgba(240,168,40,.35); background: rgba(240,168,40,.08); }
+.badge.planning { color: var(--blue); border-color: rgba(106,169,255,.35); background: rgba(106,169,255,.08); }
+.badge.archived { color: var(--gray); border-color: rgba(139,143,153,.35); background: rgba(139,143,153,.08); }
+.card .meta-mono {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+}
+.card .updated { margin-left: auto; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag {
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--ink-dim);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 2px 8px; border-radius: 5px;
+}
+#empty {
+  display: none; text-align: center; padding: 90px 0; color: var(--ink-faint);
+  font-family: var(--mono); font-size: 14px; letter-spacing: .08em;
+}
+
+/* ── detail overlay ────────────────────── */
+#overlay {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(10,11,14,.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+#overlay.show { display: block; animation: fade .2s ease both; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.sheet {
+  max-width: 900px;
+  margin: 48px auto 64px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  overflow: hidden;
+  animation: sheetUp .32s cubic-bezier(.2,.7,.3,1) both;
+  box-shadow: 0 30px 80px rgba(0,0,0,.55);
+}
+@keyframes sheetUp {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: none; }
+}
+.sheet-head {
+  padding: 34px 38px 26px;
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(600px 200px at 20% -60px, rgba(240,168,40,.10), transparent 65%),
+    var(--surface);
+  position: relative;
+}
+.close {
+  position: absolute; top: 20px; right: 20px;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--line-strong);
+  color: var(--ink-dim); font-size: 16px; cursor: pointer;
+  transition: all .15s;
+}
+.close:hover { color: var(--ink); border-color: var(--amber); }
+.hero { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
+.hero .appicon { width: 92px; height: 92px; border-radius: 22px; }
+.hero .appicon.ph { font-size: 36px; }
+.hero h2 {
+  font-family: var(--display);
+  font-size: 30px; font-weight: 700; letter-spacing: .01em;
+}
+.hero .pkg {
+  font-family: var(--mono); font-size: 13px; color: var(--ink-dim);
+  user-select: all;
+}
+.hero .badge { margin-top: 10px; }
+.links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.lnk {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .03em;
+  color: var(--ink); text-decoration: none;
+  border: 1px solid var(--line-strong);
+  background: var(--card);
+  padding: 8px 14px; border-radius: 8px;
+  transition: all .15s;
+}
+.lnk:hover { border-color: var(--amber); color: var(--amber); }
+.lnk::before { content: "↗ "; color: var(--amber); }
+
+/* ── copy / download buttons ── */
+.actbtn {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .03em;
+  color: var(--ink-dim); background: var(--card);
+  border: 1px solid var(--line-strong);
+  padding: 4px 10px; border-radius: 7px; cursor: pointer;
+  transition: all .15s; white-space: nowrap;
+}
+.actbtn:hover { border-color: var(--amber); color: var(--amber); }
+.actbtn:active { transform: scale(.96); }
+.pkgline { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+.stitle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.section .stitle-row .stitle { margin-bottom: 0; }
+.stitle-row .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── locale tabs + listing fields ── */
+.ltabs { display: flex; gap: 6px; margin-bottom: 18px; }
+.ltab {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .1em;
+  color: var(--ink-dim); background: transparent;
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 6px 16px; cursor: pointer; transition: all .15s;
+  text-transform: uppercase;
+}
+.ltab:hover { border-color: var(--line-strong); color: var(--ink); }
+.ltab.on { color: #141519; background: var(--amber); border-color: var(--amber); font-weight: 700; }
+.field { border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+.field .fk {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.field .fk .flabel {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-dim);
+}
+.field .fk .fcount {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+  margin-left: auto;
+}
+.field .fk .fcount.over { color: #f87171; font-weight: 700; }
+.field .fv {
+  padding: 14px 16px; font-size: 14px; line-height: 1.7;
+  white-space: pre-wrap; word-break: break-word; color: #d6d4cd;
+}
+.field .fv.empty { color: var(--ink-faint); font-style: italic; }
+
+/* ── per-screenshot download overlay ── */
+.shot { position: relative; flex-shrink: 0; scroll-snap-align: start; }
+.shot .dl {
+  position: absolute; top: 10px; right: 10px;
+  opacity: 0; transition: opacity .15s;
+  background: rgba(20,21,25,.85); color: var(--amber);
+  border: 1px solid var(--amber); border-radius: 8px;
+  font-family: var(--mono); font-size: 12px;
+  padding: 5px 10px; cursor: pointer;
+}
+.shot:hover .dl { opacity: 1; }
+
+/* ── missing-asset placeholder / generate request ── */
+.ph-asset {
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 12px;
+  padding: 34px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  text-align: center;
+}
+.ph-asset .ph-msg {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .08em;
+  color: var(--ink-faint);
+}
+.actbtn.gen { color: var(--amber); border-color: rgba(240,168,40,.45); }
+.actbtn.gen:hover { background: var(--amber-soft); }
+.tag.miss {
+  color: var(--amber);
+  border: 1px dashed rgba(240,168,40,.5);
+  background: transparent;
+}
+
+/* ── toast ── */
+#toast {
+  position: fixed; left: 50%; bottom: 36px; transform: translate(-50%, 16px);
+  z-index: 99; pointer-events: none;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--amber); border-radius: 10px;
+  font-family: var(--mono); font-size: 12.5px; letter-spacing: .04em;
+  padding: 11px 20px; opacity: 0;
+  transition: opacity .2s, transform .2s;
+  box-shadow: 0 10px 30px rgba(0,0,0,.5);
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+#toast::before { content: "✓ "; color: var(--amber); }
+
+.metagrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px; background: var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.metacell { background: var(--surface); padding: 14px 20px; }
+.metacell .k {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.metacell .v { font-size: 14px; margin-top: 5px; word-break: break-all; }
+.metacell .v.mono { font-family: var(--mono); font-size: 12.5px; }
+.section { padding: 28px 38px; }
+.section + .section { border-top: 1px solid var(--line); }
+.section .stitle {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--amber);
+  margin-bottom: 16px;
+}
+.section .stitle::before { content: "▪ "; }
+.fg img {
+  width: 100%; border-radius: 12px; border: 1px solid var(--line-strong);
+  display: block;
+}
+.shots {
+  display: flex; gap: 12px; overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+}
+.shots img {
+  height: 340px; border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  display: block;
+  transition: transform .18s, border-color .18s;
+}
+.shots img:hover { transform: scale(1.02); border-color: var(--amber); }
+
+/* ── markdown body ────────────────────── */
+.md { font-size: 14.5px; line-height: 1.75; color: #d6d4cd; }
+.md h2 {
+  font-size: 17px; font-weight: 700; color: var(--ink);
+  margin: 30px 0 12px; padding-left: 12px;
+  border-left: 3px solid var(--amber);
+}
+.md h2:first-child { margin-top: 0; }
+.md h3 { font-size: 15px; font-weight: 700; color: var(--ink); margin: 22px 0 8px; }
+.md p { margin: 10px 0; white-space: pre-wrap; }
+.md ul, .md ol { margin: 10px 0 10px 22px; }
+.md li { margin: 4px 0; }
+.md a { color: var(--amber); text-decoration: none; border-bottom: 1px dotted rgba(240,168,40,.5); }
+.md code {
+  font-family: var(--mono); font-size: 12.5px;
+  background: var(--card); border: 1px solid var(--line);
+  padding: 1.5px 6px; border-radius: 5px;
+}
+.md pre {
+  background: #16181d; border: 1px solid var(--line);
+  border-radius: 10px; padding: 16px; overflow-x: auto; margin: 14px 0;
+}
+.md pre code { background: none; border: none; padding: 0; }
+.md blockquote {
+  border-left: 3px solid var(--line-strong);
+  padding-left: 14px; color: var(--ink-dim); margin: 12px 0;
+}
+.md hr { border: none; border-top: 1px dashed var(--line-strong); margin: 22px 0; }
+.md table { border-collapse: collapse; margin: 14px 0; width: 100%; font-size: 13px; }
+.md th, .md td { border: 1px solid var(--line-strong); padding: 7px 12px; text-align: left; }
+.md th { background: var(--card); font-family: var(--mono); font-size: 11.5px; }
+.md img { max-width: 100%; border-radius: 10px; border: 1px solid var(--line); }
+
+footer {
+  max-width: 1180px; margin: 0 auto; padding: 0 32px 46px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  color: var(--ink-faint);
+}
+footer .amber { color: var(--amber); }
+
+@media (max-width: 640px) {
+  header { padding: 36px 20px 4px; }
+  .toolbar, main, footer { padding-left: 20px; padding-right: 20px; }
+  .sheet { margin: 0; border-radius: 0; border: none; }
+  .sheet-head, .section { padding-left: 22px; padding-right: 22px; }
+  .shots img { height: 260px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1><span class="tick">APP</span> VAULT</h1>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="tagline" id="tagline"></div>
+</header>
+
+<div class="toolbar">
+  <div class="search">
+    <span class="icon">⌕</span>
+    <input id="q" type="search" autocomplete="off">
+    <kbd>/</kbd>
+  </div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<main>
+  <div id="grid"></div>
+  <div id="empty"></div>
+</main>
+
+<footer>BUILT <span class="amber">__BUILT_AT__</span> · app-vault</footer>
+
+<div id="overlay">
+  <div class="sheet" id="sheet"></div>
+</div>
+<div id="toast"></div>
+
+<script>
+const DATA = __DATA_JSON__;
+const LANG = "__LANG__";
+
+const I18N = {
+  en: {
+    tagline: "App store listing catalog — Obsidian vault",
+    searchPh: "Search name · package · description · tags",
+    all: "All",
+    status: { released: "Released", dev: "In dev", planning: "Planning", archived: "Archived" },
+    empty: "NO MATCH — nothing found",
+    copy: "⧉ Copy",
+    copied: l => `${l} copied`,
+    pkg: "Package name",
+    genCopy: "⚡ Copy generate request",
+    genIcon: "⚡ Generate icon",
+    genReq: "Generate request",
+    pasteHint: "Paste into Claude Code to run",
+    dlIcon: "↓ Icon",
+    dlFg: "↓ Feature graphic",
+    dlShots: n => `↓ Screenshots (${n})`,
+    dlAll: "↓ All",
+    dl: "↓ Download",
+    dlAllShots: "↓ Download all",
+    noFg: "No feature graphic — 1024×500 PNG required",
+    noShots: "No store screenshots — 1080×2400 recommended, min. 2",
+    missIcon: "icon", missFg: "graphic", missShots: "shots",
+    fName: "App name", fShort: "Short description", fFull: "Full description",
+    notWritten: "Not written",
+    shotDl: "Screenshot download started",
+    filesDl: n => `Started downloading ${n} file(s)`,
+    emptyBody: "No content.",
+  },
+  ko: {
+    tagline: "출시 앱 통합 카탈로그 — OBSIDIAN VAULT",
+    searchPh: "이름 · 패키지명 · 설명 · 태그 검색",
+    all: "전체",
+    status: { released: "출시", dev: "개발중", planning: "기획", archived: "보관" },
+    empty: "NO MATCH — 검색 결과가 없습니다",
+    copy: "⧉ 복사",
+    copied: l => `${l} 복사됨`,
+    pkg: "패키지명",
+    genCopy: "⚡ 생성 요청 복사",
+    genIcon: "⚡ 아이콘 생성 요청",
+    genReq: "생성 요청",
+    pasteHint: "Claude Code에 붙여넣어 실행하세요",
+    dlIcon: "↓ 아이콘",
+    dlFg: "↓ 피처 그래픽",
+    dlShots: n => `↓ 스크린샷 ${n}장`,
+    dlAll: "↓ 전체",
+    dl: "↓ 다운로드",
+    dlAllShots: "↓ 전체 다운로드",
+    noFg: "피처 그래픽 없음 — 1024×500 PNG 필요",
+    noShots: "스토어 스크린샷 없음 — 1080×2400 권장, 최소 2장",
+    missIcon: "아이콘", missFg: "그래픽", missShots: "스크린샷",
+    fName: "앱 이름", fShort: "간단한 설명", fFull: "자세한 설명",
+    notWritten: "미작성",
+    shotDl: "스크린샷 다운로드 시작",
+    filesDl: n => `${n}개 파일 다운로드 시작`,
+    emptyBody: "본문이 비어 있습니다.",
+  },
+};
+const T = I18N[LANG] || I18N.en;
+
+const PLATFORM_LABEL = { android: "Android", ios: "iOS", "android+ios": "Android · iOS", web: "Web" };
+
+const $ = (s, el) => (el || document).querySelector(s);
+const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const statusLabel = s => T.status[s] || esc(s);
+
+/* precompute search haystacks */
+DATA.forEach(a => {
+  const listingText = Object.values(a.listings || {})
+    .map(l => Object.values(l).join(" ")).join(" ");
+  a._hay = [a.appName, a.packageName, a.shortDesc, (a.tags || []).join(" "), listingText, a.body]
+    .join(" ").toLowerCase();
+});
+
+let statusFilter = "all";
+let query = "";
+
+/* ── static labels ── */
+$("#tagline").textContent = T.tagline;
+$("#q").placeholder = T.searchPh;
+$("#empty").textContent = T.empty;
+
+/* ── filter chips ── */
+function renderChips() {
+  const counts = { all: DATA.length };
+  DATA.forEach(a => counts[a.status] = (counts[a.status] || 0) + 1);
+  const order = ["all", "released", "dev", "planning", "archived"];
+  $("#chips").innerHTML = order
+    .filter(s => counts[s])
+    .map(s => `<button class="chip ${statusFilter === s ? "on" : ""}" data-s="${s}">
+      ${s === "all" ? T.all : statusLabel(s)}<span class="n">${counts[s]}</span></button>`)
+    .join("");
+}
+$("#chips").addEventListener("click", e => {
+  const btn = e.target.closest(".chip");
+  if (!btn) return;
+  statusFilter = btn.dataset.s;
+  renderChips();
+  renderGrid();
+});
+
+/* ── grid ── */
+function filtered() {
+  return DATA.filter(a =>
+    (statusFilter === "all" || a.status === statusFilter) &&
+    (!query || a._hay.includes(query))
+  );
+}
+function iconHtml(a, cls) {
+  return a.icon
+    ? `<img class="appicon ${cls || ""}" src="${esc(a.icon)}" alt="" loading="lazy">`
+    : `<div class="appicon ph ${cls || ""}">${esc((a.appName || "?")[0].toUpperCase())}</div>`;
+}
+function missingAssets(a) {
+  return [
+    !a.icon && { kind: "icon", label: T.missIcon },
+    !a.featureGraphic && { kind: "feature-graphic", label: T.missFg },
+    !a.screenshots.length && { kind: "screenshots", label: T.missShots },
+  ].filter(Boolean);
+}
+function renderGrid() {
+  const list = filtered();
+  $("#count").textContent = `${list.length} / ${DATA.length} APPS`;
+  $("#empty").style.display = list.length ? "none" : "block";
+  $("#grid").innerHTML = list.map((a, i) => `
+    <div class="card" data-slug="${esc(a.slug)}" style="animation-delay:${Math.min(i * 45, 500)}ms">
+      <div class="top">
+        ${iconHtml(a)}
+        <div class="id">
+          <div class="name">${esc(a.appName)}</div>
+          <div class="pkg">${esc(a.packageName)}</div>
+        </div>
+      </div>
+      <div class="desc">${esc(a.shortDesc)}</div>
+      ${(a.tags || []).length ? `<div class="tags">${a.tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
+      ${missingAssets(a).length ? `<div class="tags">${missingAssets(a).map(m => `<span class="tag miss">${esc(m.label)} ✗</span>`).join("")}</div>` : ""}
+      <div class="foot">
+        <span class="badge ${esc(a.status)}"><span class="dot"></span>${statusLabel(a.status)}</span>
+        <span class="meta-mono">${PLATFORM_LABEL[a.platform] || esc(a.platform)}</span>
+        <span class="meta-mono updated">${esc(a.updated)}</span>
+      </div>
+    </div>`).join("");
+}
+$("#grid").addEventListener("click", e => {
+  const card = e.target.closest(".card");
+  if (card) openDetail(card.dataset.slug);
+});
+
+/* ── search ── */
+$("#q").addEventListener("input", e => {
+  query = e.target.value.trim().toLowerCase();
+  renderGrid();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== $("#q") && !$("#overlay").classList.contains("show")) {
+    e.preventDefault();
+    $("#q").focus();
+  }
+  if (e.key === "Escape") {
+    if ($("#overlay").classList.contains("show")) closeDetail();
+    else { $("#q").value = ""; query = ""; renderGrid(); }
+  }
+});
+
+/* ── clipboard / download / toast utils ── */
+let toastTimer;
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 1600);
+}
+async function copyText(text, label) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+  }
+  toast(T.copied(label));
+}
+function baseName(uri) { return decodeURIComponent(uri.split("/").pop()); }
+function downloadUri(uri, filename) {
+  const link = document.createElement("a");
+  link.href = uri;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+async function downloadAll(items) {
+  for (const [uri, name] of items) {
+    downloadUri(uri, name);
+    await new Promise(r => setTimeout(r, 300));
+  }
+  toast(T.filesDl(items.length));
+}
+
+/* ── detail ── */
+const LOCALE_ORDER = ["ko", "en", "ja"];
+const FIELD_DEFS = () => [
+  ["name", T.fName, 30],
+  ["short", T.fShort, 80],
+  ["full", T.fFull, 4000],
+];
+let currentApp = null;
+let currentLocale = LANG === "ko" ? "ko" : "en";
+
+function localesOf(a) {
+  const keys = Object.keys(a.listings || {});
+  return [...LOCALE_ORDER.filter(l => keys.includes(l)), ...keys.filter(l => !LOCALE_ORDER.includes(l)).sort()];
+}
+function listingHtml(a, locale) {
+  const data = (a.listings || {})[locale] || {};
+  const locales = localesOf(a);
+  const tabs = locales.map(l =>
+    `<button class="ltab ${l === locale ? "on" : ""}" data-loc="${esc(l)}">${esc(l)}</button>`).join("");
+  const fields = FIELD_DEFS().map(([key, label, limit]) => {
+    const value = data[key] || "";
+    const count = [...value].length;
+    return `<div class="field">
+      <div class="fk">
+        <span class="flabel">${esc(label)}</span>
+        <span class="fcount ${count > limit ? "over" : ""}">${count} / ${limit}</span>
+        ${value ? `<button class="actbtn" data-copy-field="${key}">${T.copy}</button>` : ""}
+      </div>
+      <div class="fv ${value ? "" : "empty"}">${value ? esc(value) : esc(T.notWritten)}</div>
+    </div>`;
+  }).join("");
+  return `<div class="ltabs">${tabs}</div>${fields}`;
+}
+function assetActions(a) {
+  const acts = [];
+  if (a.icon) acts.push(`<button class="actbtn" data-dl="icon">${T.dlIcon}</button>`);
+  if (a.featureGraphic) acts.push(`<button class="actbtn" data-dl="fg">${T.dlFg}</button>`);
+  if (a.screenshots.length) acts.push(`<button class="actbtn" data-dl="shots">${T.dlShots(a.screenshots.length)}</button>`);
+  if (acts.length > 1) acts.push(`<button class="actbtn" data-dl="all">${T.dlAll}</button>`);
+  if (!a.icon) acts.push(`<button class="actbtn gen" data-gen="icon">${T.genIcon}</button>`);
+  return acts.join("");
+}
+function openDetail(slug) {
+  const a = DATA.find(x => x.slug === slug);
+  if (!a) return;
+  currentApp = a;
+  const locales = localesOf(a);
+  currentLocale = locales.includes(currentLocale) ? currentLocale : (locales[0] || "en");
+  const links = [
+    a.playUrl && `<a class="lnk" href="${esc(a.playUrl)}" target="_blank" rel="noopener">Google Play</a>`,
+    a.appStoreUrl && `<a class="lnk" href="${esc(a.appStoreUrl)}" target="_blank" rel="noopener">App Store</a>`,
+    a.repo && `<a class="lnk" href="https://github.com/${esc(a.repo)}" target="_blank" rel="noopener">GitHub</a>`,
+    a.privacyPolicyUrl && `<a class="lnk" href="${esc(a.privacyPolicyUrl)}" target="_blank" rel="noopener">Privacy Policy</a>`,
+    a.termsUrl && `<a class="lnk" href="${esc(a.termsUrl)}" target="_blank" rel="noopener">Terms</a>`,
+  ].filter(Boolean).join("");
+
+  const meta = [
+    ["STATUS", statusLabel(a.status)],
+    ["PLATFORM", PLATFORM_LABEL[a.platform] || a.platform],
+    a.version && ["VERSION", a.version, "mono"],
+    a.updated && ["UPDATED", a.updated, "mono"],
+    a.projectDir && ["PROJECT", a.projectDir, "mono"],
+    (a.tags || []).length && ["TAGS", a.tags.join(", "), "mono"],
+  ].filter(Boolean)
+    .map(([k, v, cls]) => `<div class="metacell"><div class="k">${k}</div><div class="v ${cls || ""}">${esc(v)}</div></div>`)
+    .join("");
+
+  const assetActs = assetActions(a);
+  $("#sheet").innerHTML = `
+    <div class="sheet-head">
+      <button class="close" onclick="closeDetail()">✕</button>
+      <div class="hero">
+        ${iconHtml(a)}
+        <div>
+          <h2>${esc(a.appName)}</h2>
+          <div class="pkgline">
+            <span class="pkg">${esc(a.packageName)}</span>
+            <button class="actbtn" data-copy-pkg>${T.copy}</button>
+          </div>
+          <span class="badge ${esc(a.status)}"><span class="dot"></span>${statusLabel(a.status)}</span>
+        </div>
+      </div>
+      ${links ? `<div class="links">${links}</div>` : ""}
+      ${assetActs ? `<div class="links">${assetActs}</div>` : ""}
+    </div>
+    <div class="metagrid">${meta}</div>
+    ${localesOf(a).length ? `<div class="section"><div class="stitle">Play Store Listing</div><div id="listing">${listingHtml(a, currentLocale)}</div></div>` : ""}
+    ${a.featureGraphic ? `<div class="section fg">
+      <div class="stitle-row"><div class="stitle">Feature Graphic</div>
+        <div class="acts"><button class="actbtn" data-dl="fg">${T.dl}</button></div></div>
+      <img src="${esc(a.featureGraphic)}" alt=""></div>`
+    : `<div class="section">
+      <div class="stitle-row"><div class="stitle">Feature Graphic</div></div>
+      <div class="ph-asset">
+        <span class="ph-msg">${esc(T.noFg)}</span>
+        <button class="actbtn gen" data-gen="feature-graphic">${T.genCopy}</button>
+      </div></div>`}
+    ${a.screenshots.length ? `<div class="section">
+      <div class="stitle-row"><div class="stitle">Screenshots · ${a.screenshots.length}</div>
+        <div class="acts"><button class="actbtn" data-dl="shots">${T.dlAllShots}</button></div></div>
+      <div class="shots">${a.screenshots.map((s, i) => `<div class="shot">
+        <a href="${esc(s)}" target="_blank"><img src="${esc(s)}" alt="" loading="lazy"></a>
+        <button class="dl" data-dl-shot="${i}" title="download">↓</button>
+      </div>`).join("")}</div></div>`
+    : `<div class="section">
+      <div class="stitle-row"><div class="stitle">Screenshots</div></div>
+      <div class="ph-asset">
+        <span class="ph-msg">${esc(T.noShots)}</span>
+        <button class="actbtn gen" data-gen="screenshots">${T.genCopy}</button>
+      </div></div>`}
+    <div class="section"><div class="stitle">Notes</div><div class="md">${mdToHtml(a.body, a.slug)}</div></div>`;
+
+  $("#overlay").classList.add("show");
+  document.body.style.overflow = "hidden";
+  history.replaceState(null, "", "#app=" + encodeURIComponent(slug));
+}
+
+/* detail actions: copy / download / locale tabs (event delegation) */
+$("#sheet").addEventListener("click", e => {
+  const a = currentApp;
+  if (!a) return;
+
+  const tab = e.target.closest(".ltab");
+  if (tab) {
+    currentLocale = tab.dataset.loc;
+    $("#listing").innerHTML = listingHtml(a, currentLocale);
+    return;
+  }
+  if (e.target.closest("[data-copy-pkg]")) {
+    copyText(a.packageName, T.pkg);
+    return;
+  }
+  const genBtn = e.target.closest("[data-gen]");
+  if (genBtn) {
+    copyText(`/app-vault generate ${a.slug} ${genBtn.dataset.gen}`, T.genReq);
+    setTimeout(() => toast(T.pasteHint), 1700);
+    return;
+  }
+  const copyBtn = e.target.closest("[data-copy-field]");
+  if (copyBtn) {
+    const key = copyBtn.dataset.copyField;
+    const label = (FIELD_DEFS().find(f => f[0] === key) || [])[1] || key;
+    copyText(((a.listings || {})[currentLocale] || {})[key] || "", `${label} (${currentLocale.toUpperCase()})`);
+    return;
+  }
+  const shotBtn = e.target.closest("[data-dl-shot]");
+  if (shotBtn) {
+    const s = a.screenshots[+shotBtn.dataset.dlShot];
+    downloadUri(s, `${a.slug}-${baseName(s)}`);
+    toast(T.shotDl);
+    return;
+  }
+  const dlBtn = e.target.closest("[data-dl]");
+  if (dlBtn) {
+    const kind = dlBtn.dataset.dl;
+    const items = [];
+    if ((kind === "icon" || kind === "all") && a.icon) items.push([a.icon, `${a.slug}-icon.${a.icon.split(".").pop()}`]);
+    if ((kind === "fg" || kind === "all") && a.featureGraphic) items.push([a.featureGraphic, `${a.slug}-feature-graphic.${a.featureGraphic.split(".").pop()}`]);
+    if (kind === "shots" || kind === "all") a.screenshots.forEach(s => items.push([s, `${a.slug}-${baseName(s)}`]));
+    downloadAll(items);
+  }
+});
+function closeDetail() {
+  $("#overlay").classList.remove("show");
+  document.body.style.overflow = "";
+  history.replaceState(null, "", location.pathname);
+}
+$("#overlay").addEventListener("click", e => {
+  if (e.target.id === "overlay") closeDetail();
+});
+
+/* ── tiny markdown renderer ── */
+function mdToHtml(md, slug) {
+  if (!md || !md.trim()) return `<p style="color:var(--ink-faint)">${esc(T.emptyBody)}</p>`;
+  let text = esc(md);
+
+  // protect code fences
+  const fences = [];
+  text = text.replace(/```([\s\S]*?)```/g, (_, code) => {
+    fences.push(`<pre><code>${code.replace(/^\w*\n/, "")}</code></pre>`);
+    return ` F${fences.length - 1} `;
+  });
+
+  const inline = s => s
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
+      const fixed = /^(https?:|\.\.\/)/.test(src) ? src : `../${slug}/${src}`;
+      return `<img src="${fixed}" alt="${alt}">`;
+    })
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  const lines = text.split("\n");
+  const out = [];
+  let list = null, para = [];
+
+  const flushPara = () => {
+    if (para.length) { out.push(`<p>${inline(para.join("\n"))}</p>`); para = []; }
+  };
+  const flushList = () => {
+    if (list) { out.push(`</${list}>`); list = null; }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const t = line.trim();
+
+    if (/^ F\d+ $/.test(t)) { flushPara(); flushList(); out.push(t); continue; }
+    if (!t) { flushPara(); flushList(); continue; }
+
+    const h = t.match(/^(#{1,4})\s+(.*)$/);
+    if (h) {
+      flushPara(); flushList();
+      const lvl = Math.min(h[1].length + 1, 4);
+      out.push(`<h${lvl}>${inline(h[2])}</h${lvl}>`);
+      continue;
+    }
+    if (/^(-{3,}|\*{3,})$/.test(t)) { flushPara(); flushList(); out.push("<hr>"); continue; }
+    if (t.startsWith("&gt;")) {
+      flushPara(); flushList();
+      out.push(`<blockquote>${inline(t.replace(/^&gt;\s?/, ""))}</blockquote>`);
+      continue;
+    }
+    // tables
+    if (t.startsWith("|") && lines[i + 1] && /^\|[\s\-:|]+\|?$/.test(lines[i + 1].trim())) {
+      flushPara(); flushList();
+      const cells = r => r.replace(/^\||\|$/g, "").split("|").map(c => inline(c.trim()));
+      let html = `<table><thead><tr>${cells(t).map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>`;
+      i += 2;
+      while (i < lines.length && lines[i].trim().startsWith("|")) {
+        html += `<tr>${cells(lines[i].trim()).map(c => `<td>${c}</td>`).join("")}</tr>`;
+        i++;
+      }
+      i--;
+      out.push(html + "</tbody></table>");
+      continue;
+    }
+    const ul = t.match(/^[-*]\s+(.*)$/);
+    const ol = t.match(/^\d+[.)]\s+(.*)$/);
+    if (ul || ol) {
+      flushPara();
+      const want = ul ? "ul" : "ol";
+      if (list !== want) { flushList(); out.push(`<${want}>`); list = want; }
+      out.push(`<li>${inline((ul || ol)[1])}</li>`);
+      continue;
+    }
+    flushList();
+    para.push(t);
+  }
+  flushPara(); flushList();
+
+  return out.join("\n").replace(/ F(\d+) /g, (_, n) => fences[+n]);
+}
+
+/* ── init ── */
+renderChips();
+renderGrid();
+const hash = location.hash.match(/^#app=(.+)$/);
+if (hash) openDetail(decodeURIComponent(hash[1]));
+</script>
+</body>
+</html>
